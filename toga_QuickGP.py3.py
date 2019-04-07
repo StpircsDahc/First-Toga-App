@@ -7,22 +7,18 @@ from toga.style.pack import *
 
 
 def discountit(cost, discount):
+    print('tag tag tag')
     dPercentage = float(discount)/100.0
     salePrice = float(cost) - (float(cost) * dPercentage)
     salePrice = round(salePrice, 2)
-    saleString = '          $ ' +str(salePrice)
-    self.dPriceVar.set(saleString)
     return salePrice
 
 def markitup(cost, markup):
     muPercentage = float(markup)/100.0
     salePrice = float(cost) + (float(cost) * muPercentage)
     salePrice = round(salePrice, 2)
-    saleString = '          $ ' +str(salePrice)
-    self.fPriceVar.set(saleString)
     gp = round(salePrice - cost, 2)
-    gpString = '          $ ' +str(gp)
-    self.gpVar.set(gpString)
+    return salePrice, gp
 
 def build(app):
     msrp_box = toga.Box()
@@ -30,6 +26,7 @@ def build(app):
     dPrice_box = toga.Box()
     markup_box = toga.Box()
     fPrice_box = toga.Box()
+    GrossProfit_box = toga.Box()
     box = toga.Box()
 
     msrp_input = toga.TextInput()
@@ -37,26 +34,39 @@ def build(app):
     dPrice_input = toga.TextInput(readonly=True)
     markup_input = toga.TextInput()
     fPrice_input = toga.TextInput(readonly=True)
+    GrossProfit_input = toga.TextInput(readonly=True)
 
     msrp_label = toga.Label('MSRP - List Price', style=Pack(text_align=RIGHT))
     discount_label = toga.Label('Discount Percentage', style=Pack(text_align=RIGHT))
     dPrice_label = toga.Label('Discounted sales price', style=Pack(text_align=RIGHT))
     markup_label = toga.Label('Markup Percentage', style=Pack(text_align=RIGHT))
     fPrice_label = toga.Label('Final sales price', style=Pack(text_align=RIGHT))
+    GrossProfit_label = toga.Label('Gross Profit', style=Pack(text_align=RIGHT))
 
     def click_calc(widget):
-        dPrice_input.value = 'calc button pushed'
-        fPrice_input.value = 'calc button pushed'
-        # if msrp_input.value and discount_input.value and markup_input.value:
-        #     try:
-        #         discountPrice = discountit(float(msrp_input.value), float(discount_input.value))
-        #         markitup(discountPrice, markup_input.value)
-        #     except:
-        #         pass
-        # elif self.lPrice_input.get() and self.discount_input.get():
-        #     discountPrice = self.discountit(self.lPrice_input.get(), self.discount_input.get())
-        # else:
-        #     pass
+        if msrp_input.value and discount_input.value and markup_input.value:
+            try:
+                discountPrice = discountit(float(msrp_input.value), float(discount_input.value))
+                dPrice_input.value = discountPrice
+                markedupPrice, gProfit = markitup(float(discountPrice), markup_input.value)
+                fPrice_input.value = markedupPrice
+                GrossProfit_input.value = gProfit
+            except:
+                dPrice_input.value = '????'
+                fPrice_input.value = '????'
+                GrossProfit_input.value = '????'
+        elif msrp_input.value and discount_input.value:
+            try:
+                discountPrice = discountit(float(msrp_input.value), float(discount_input.value))
+                dPrice_input.value = discountPrice
+                fPrice_input.value = 'N/A'
+                GrossProfit_input.value = 'N/A'
+            except:
+                dPrice_input.value = '????'
+                fPrice_input.value = '????'
+                GrossProfit_input.value = '????'
+        else:
+            pass
 
     calc_button = toga.Button('Calculate', on_press=click_calc)
 
@@ -75,11 +85,15 @@ def build(app):
     fPrice_box.add(fPrice_label)
     fPrice_box.add(fPrice_input)
 
+    GrossProfit_box.add(GrossProfit_label)
+    GrossProfit_box.add(GrossProfit_input)
+
     box.add(msrp_box)
     box.add(discount_box)
     box.add(dPrice_box)
     box.add(markup_box)
     box.add(fPrice_box)
+    box.add(GrossProfit_box)
     box.add(calc_button)
 
     box.style.update(direction=COLUMN, padding_top=10)
@@ -88,20 +102,23 @@ def build(app):
     dPrice_box.style.update(direction=ROW, padding=5)
     markup_box.style.update(direction=ROW, padding=5)
     fPrice_box.style.update(direction=ROW, padding=5)
+    GrossProfit_box.style.update(direction=ROW, padding=5)
 
     msrp_input.style.update(flex=1, padding_right=60)
     discount_input.style.update(flex=1, padding_right=60)
     dPrice_input.style.update(flex=1, padding_right=60)
     markup_input.style.update(flex=1, padding_right=60)
     fPrice_input.style.update(flex=1, padding_right=60)
+    GrossProfit_input.style.update(flex=1, padding_right=60)
 
     msrp_label.style.update(width=200,  padding_right=10)
     discount_label.style.update(width=200,  padding_right=10)
     dPrice_label.style.update(width=200,  padding_right=10)
     markup_label.style.update(width=200,  padding_right=10)
     fPrice_label.style.update(width=200,  padding_right=10)
+    GrossProfit_label.style.update(width=200,  padding_right=10)
 
-    calc_button.style.update(padding=15, width=100, color='#ececec')
+    calc_button.style.update(padding=10, width=100)
 
     return box
 
